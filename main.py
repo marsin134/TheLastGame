@@ -29,8 +29,10 @@ player = players.Knight((WIDTH // 2 - visual.TILE_WIDTH, HEIGHT - 250), tiles_gr
 
 statue = events_on_the_map.Statue(all_sprites)
 
-enemy_skeleton = enemy.Skeleton((100, HEIGHT - 250), tiles_group, player, statue, enemy_group)
-enemy_goblin = enemy.Goblin((WIDTH - 100, HEIGHT - 250), tiles_group, player, statue, enemy_group)
+# enemy_skeleton = enemy.Skeleton((-50, HEIGHT - 250), tiles_group, player, statue, enemy_group)
+# enemy_goblin = enemy.Goblin((-100, HEIGHT - 250), tiles_group, player, statue, enemy_group)
+# enemy_eye = enemy.FlyingEye((WIDTH - 100, HEIGHT - 600), tiles_group, player, statue, enemy_group)
+# enemy_mushroom = enemy.Mushroom((WIDTH - 100, HEIGHT - 250), tiles_group, player, statue, enemy_group)
 
 clock = pygame.time.Clock()
 FPS = 30

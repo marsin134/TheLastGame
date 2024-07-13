@@ -21,7 +21,7 @@ class Enemy(pygame.sprite.Sprite):
         self.image = self.frames[0][self.cur_frame]
         self.rect = self.image.get_rect().move(pos)
 
-        self.vx, self.vy = 0, CONST.enemy_specifications[self.enemy_index]['speed']
+        self.vx, self.vy = CONST.enemy_specifications[self.enemy_index]['speed'], 5
 
         self.update_time_anim = pygame.time.get_ticks()
         self.cooldown_anim = CONST.enemy_specifications[self.enemy_index]['anim']
@@ -92,27 +92,19 @@ class Enemy(pygame.sprite.Sprite):
             # attacks the player
             if (self.attack_flag and self.cur_frame > 5 and not self.attack_is_complete
                     and pygame.sprite.collide_mask(self, self.purpose) and not self.purpose.hit):
-
                 self.purpose.hp -= self.attack_power
                 self.purpose.hit = True
                 self.attack_is_complete = True
 
             # if the target is alive
             if self.purpose.hp > 0:
-                # they will determine how to move towards the goal
-                if self.rect.x < self.purpose.rect.x:
-                    self.rect.x += self.vx
-                    self.flip = False
-
-                else:
-                    self.rect.x -= self.vx
-                    self.flip = True
-                self.rect.y += self.vy
-
                 # returns to the standard settings
                 if not self.attack_flag and not self.hit:
                     self.index = 1
                     self.vx = CONST.enemy_specifications[self.enemy_index]['speed']
+
+                # they will determine how to move towards the goal
+                self.moving_towards_the_goal()
             else:
                 self.index = 0
 
@@ -122,23 +114,8 @@ class Enemy(pygame.sprite.Sprite):
             if is_collided_with(self, self.tiles_sprites):
                 self.rect.y -= self.vy
 
-            if pygame.sprite.collide_mask(self, self.purpose):
-                # if the player has taken damage and the damage animation has not started yet
-                if self.hit and self.index != 4:
-                    self.attack_flag = False
-                    self.index = 4
-                    self.cur_frame = 0
-
-                    self.vx = 0
-
-                # if the animation has come to the moment of impact
-                elif not self.attack_flag and not self.hit:
-                    self.attack_flag = True
-
-                    self.index = 2
-                    self.cur_frame = 0
-
-                    self.vx = 0
+            self.checking_events_with_the_player()
+            self.rect.y += self.vy
 
         # displays the player
         surface.blit(self.image, self.rect)
@@ -172,6 +149,34 @@ class Enemy(pygame.sprite.Sprite):
                           coordinates_list[2] * (self.hp / self.heath_start),
                           coordinates_list[3]))
 
+    def checking_events_with_the_player(self):
+        if pygame.sprite.collide_mask(self, self.purpose):
+            # if the player has taken damage and the damage animation has not started yet
+            if self.hit and self.index != 4:
+                self.attack_flag = False
+                self.index = 4
+                self.cur_frame = 0
+
+                self.vx = 0
+
+            # if the animation has come to the moment of impact
+            elif not self.attack_flag and not self.hit:
+                self.attack_flag = True
+
+                self.index = 2
+                self.cur_frame = 0
+
+                self.vx = 0
+
+    def moving_towards_the_goal(self):
+        if self.rect.x < self.purpose.rect.x:
+            self.rect.x += self.vx
+            self.flip = False
+
+        else:
+            self.rect.x -= self.vx
+            self.flip = True
+
 
 class Goblin(Enemy):
     def __init__(self, pos, tiles, person, statue, *group):
@@ -198,9 +203,68 @@ class Skeleton(Enemy):
                           coordinates_list[3]))
 
 
+class FlyingEye(Enemy):
+    def __init__(self, pos, tiles, person, statue, *group):
+        self.enemy_index = 2
+        super().__init__(pos, tiles, person, statue, *group)
+        self.vy = 1
+
+    def pick_target(self):
+        # defines the goal
+        self.purpose = self.statue
+
+    def checking_events_with_the_player(self):
+        if pygame.sprite.collide_mask(self, self.purpose):
+            # if the animation has come to the moment of impact
+            if not self.attack_flag and not self.hit:
+                self.attack_flag = True
+
+                self.index = 2
+                self.cur_frame = 0
+
+                self.vx = 0
+                self.vy = 0
+
+        if pygame.sprite.collide_mask(self, self.person):
+            if self.hit and self.index != 4:
+                self.attack_flag = False
+                self.index = 4
+                self.cur_frame = 0
+
+                self.vx = 0
+
+    def moving_towards_the_goal(self):
+        if self.rect.x < self.purpose.rect.x:
+            self.rect.x += self.vx
+            if not pygame.sprite.collide_circle(self, self.purpose):
+                self.flip = False
+            else:
+                self.vy = 5
+        else:
+            self.rect.x -= self.vx
+            if not pygame.sprite.collide_circle(self, self.purpose):
+                self.flip = True
+            else:
+                self.vy = 5
 
 
+class Mushroom(Enemy):
+    def __init__(self, pos, tiles, person, statue, *group):
+        self.enemy_index = 3
+        super().__init__(pos, tiles, person, statue, *group)
 
+    def pick_target(self):
+        # defines the goal
+        self.purpose = self.person
 
-
-
+    def moving_towards_the_goal(self):
+        if not (self.purpose.rect.x - 1 <= self.rect.x <= self.purpose.rect.x + 1
+                and self.rect.y > self.purpose.rect.y):
+            if self.rect.x < self.purpose.rect.x:
+                self.rect.x += self.vx
+                self.flip = False
+            else:
+                self.rect.x -= self.vx
+                self.flip = True
+        else:
+            self.index = 0
