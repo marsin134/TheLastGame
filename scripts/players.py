@@ -213,6 +213,9 @@ class Player(pygame.sprite.Sprite):
         surface.blit(self.preview, (10, 10))
         pygame.draw.rect(surface, (0, 0, 0), (0, 0, 138, 138), 10)
 
+        size_cell = (10 * self.heath_start if self.heath_start <= 33 else 330, 128)
+        cell_of_lives = load_image('playersPanel/TheCellOfLives.png', transforms=size_cell)
+
         coordinates_list = [165, 25, size_cell[0] // 1.6, size_cell[1] - 115, 150 + size_cell[0]]
 
         pygame.draw.rect(surface, (64, 0, 0),
@@ -246,7 +249,3 @@ def is_collided_with(sprite_person, sprite_group):
         if pygame.sprite.collide_mask(sprite_person, sprite):
             return sprite
     return False
-
-
-size_cell = (256, 128)
-cell_of_lives = load_image('playersPanel/TheCellOfLives.png', transforms=size_cell)

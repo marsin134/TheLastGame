@@ -105,10 +105,10 @@ def create_platform(pos_x, pos_y, length_platform=2):
 
 def create_map():
     # Creation of the earth
-    for i in range(SCREEN_WIDTH // TILE_WIDTH):
+    for i in range(SCREEN_WIDTH // TILE_WIDTH + 2):
         Tile('#', i, SCREEN_HEIGHT // TILE_HEIGHT - 2, tiles_group, all_sprites)
-        Tile(',', i, SCREEN_HEIGHT // TILE_HEIGHT - 1, tiles_group, all_sprites)
-        Tile('.', i, SCREEN_HEIGHT // TILE_HEIGHT, tiles_group, all_sprites)
+        Tile(',', i, SCREEN_HEIGHT // TILE_HEIGHT - 1, all_sprites)
+        Tile('.', i, SCREEN_HEIGHT // TILE_HEIGHT, all_sprites)
 
     create_platform(4, 12, 5)
     create_platform(26, 12, 5)

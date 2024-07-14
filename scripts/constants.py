@@ -13,13 +13,13 @@ goblin_heath = 10
 goblin_speed = 3
 goblin_attack_power = 3
 goblin_cooldown_anim = 75
-goblin_range_player = 200
+goblin_range_player = 150
 
 skeleton_heath = 15
 skeleton_speed = 2
 skeleton_attack_power = 7
 skeleton_cooldown_anim = 100
-skeleton_range_player = 300
+skeleton_range_player = 200
 
 flying_eye_heath = 10
 flying_eye_speed = 2
@@ -32,6 +32,9 @@ mushroom_speed = 4
 mushroom_attack_power = 5
 mushroom_cooldown_anim = 75
 mushroom_range_player = 1000
+
+fire_anim = 75
+quantity_fire = 3
 
 enemy_specifications = {0: {'heath': goblin_heath,
                             'speed': goblin_speed,
