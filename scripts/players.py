@@ -11,13 +11,7 @@ class Player(pygame.sprite.Sprite):
 
         self.tiles_sprites = tiles
 
-        self.cut_sheet([('player_knight/IDLE.png', 3),
-                        ('player_knight/WALK.png', 8),
-                        ('player_knight/ATTACK.png', 7),
-                        ('player_knight/DEATH.png', 10),
-                        ('player_knight/HURT.png', 3)])
-
-        self.preview = load_image('playersPanel/knight.png', transforms=(128, 128))
+        self.cut_sheet(CONST.player_sheet_list[self.player_index])
 
         self.cur_frame = 0
         self.index = 0
@@ -52,6 +46,17 @@ class Player(pygame.sprite.Sprite):
 
         self.hit = False
         self.death = False
+        self.ability_anim = False
+
+        self.first_ability_activate = False
+        self.time_first_ability = -CONST.update_first_ability
+
+        self.second_ability_activate = False
+        self.time_second_ability = -CONST.update_second_ability
+
+        self.back_icon = load_image('playersPanel/Frame.png', transforms=(48, 48))
+        self.preview = load_image('playersPanel/knight.png', transforms=(128, 128))
+        self.recharge_icon = load_image('playersPanel/recharge.png', transforms=(40, 40))
 
     def update(self, surface):
         # If he died
@@ -78,10 +83,6 @@ class Player(pygame.sprite.Sprite):
             if is_collided_with(self, self.tiles_sprites):
                 self.rect.y -= self.movement_y
 
-            # if the player goes beyond the boundaries of the world
-            if self.rect.x + CONST.TILE_WIDTH * 2 <= 0 or self.rect.x >= CONST.SCREEN_WIDTH - CONST.TILE_WIDTH * 3.5:
-                self.movement_x -= self.movement_x
-
             # checking whether the user is standing on the blocks
             if self.rect.y != rect_y:
                 self.double_jump = True
@@ -91,9 +92,11 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.movement_y += 0.2
 
-            # if the animation has come to the moment of impact
-            if self.attack_flag and self.cur_frame > 3 and not self.attack_is_complete:
-                self.attack_is_complete = self.attack_enemy()
+            # if the player goes beyond the boundaries of the world
+            if self.rect.x + CONST.TILE_WIDTH * 2 <= 0 or self.rect.x >= CONST.SCREEN_WIDTH - CONST.TILE_WIDTH * 3.5:
+                self.movement_x -= self.movement_x
+
+            self.attack_is_complete = self.attack_enemy()
 
             # if the player has taken damage and the damage animation has not started yet
             if self.hit and self.index != 4:
@@ -109,6 +112,9 @@ class Player(pygame.sprite.Sprite):
         if pygame.time.get_ticks() - self.update_time_anim > self.cooldown_anim:
             self.update_sheet()
             self.update_time_anim = pygame.time.get_ticks()
+
+        self.first_ability()
+        self.second_ability()
 
     def events_movement(self, event):
         if not self.death:
@@ -147,6 +153,16 @@ class Player(pygame.sprite.Sprite):
                     self.movement_x *= 1.5
                     self.cooldown_anim //= 2
                     self.attack_power /= 2
+
+                if event.key == pygame.K_x:
+                    self.first_ability_activate = True
+
+                if event.key == pygame.K_c:
+                    self.second_ability_activate = True
+
+                # if event.key == pygame.K_q:
+                #     self.heath_start += 1
+                #     self.hp += 1
 
                 if event.key == pygame.K_SPACE:
                     if self.power_attraction <= 10 and self.double_jump:
@@ -187,6 +203,10 @@ class Player(pygame.sprite.Sprite):
             if self.death:
                 self.kill()
 
+            # if the ability has ended
+            elif self.ability_anim:
+                self.ability_anim = False
+
             # if the hit has ended
             elif self.hit:
                 self.hit = False
@@ -203,10 +223,13 @@ class Player(pygame.sprite.Sprite):
     def attack_enemy(self):
         # returns the truth if there is an enemy nearby
         flag = False
-        for sprite in self.enemy_group:
-            if pygame.sprite.collide_mask(self, sprite) and not sprite.hit:
-                sprite.hp -= self.attack_power
-                flag = sprite.hit = True
+
+        # if the animation has come to the moment of impact
+        if self.attack_flag and self.cur_frame > 3 and not self.attack_is_complete:
+            for sprite in self.enemy_group:
+                if pygame.sprite.collide_mask(self, sprite) and not sprite.hit:
+                    sprite.hp -= self.attack_power
+                    flag = sprite.hit = True
         return flag
 
     def draw_preview(self, surface):
@@ -227,21 +250,17 @@ class Player(pygame.sprite.Sprite):
                           coordinates_list[2] * (self.hp / self.heath_start),
                           coordinates_list[3]))
 
-        surface.blit(cell_of_lives, (coordinates_list[0] - 15, coordinates_list[1] - 95))
+        surface.blit(cell_of_lives, (coordinates_list[0] - self.heath_start * 0.4, coordinates_list[1] - 95))
 
+        surface.blit(self.back_icon, (coordinates_list[0], coordinates_list[1] * 2.5))
+        surface.blit(self.back_icon, (coordinates_list[2] - 40 + coordinates_list[0], coordinates_list[1] * 2.5))
 
-class Knight(Player):
-    def __init__(self, pos, tiles, enemy_group, *group):
-        super().__init__(pos, tiles, enemy_group, *group)
-        self.speed = CONST.knight_speed
+        pygame.draw.rect(surface, (0, 0, 0),
+                         (coordinates_list[0] + 45, coordinates_list[1] * 3.2, coordinates_list[2] - 83, 10))
 
-        self.power_jump = CONST.knight_power_jump
-
-        self.attack_power = CONST.knight_attack_power
-
-        self.cooldown_anim = CONST.knight_cooldown_anim
-
-        self.heath_start = self.hp = CONST.knight_heath
+        surface.blit(self.first_icon_ability, (coordinates_list[0] + 4, coordinates_list[1] * 2.5 + 4))
+        surface.blit(self.second_icon_ability,
+                     (coordinates_list[2] - 36 + coordinates_list[0], coordinates_list[1] * 2.5 + 4))
 
 
 def is_collided_with(sprite_person, sprite_group):

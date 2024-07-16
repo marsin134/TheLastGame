@@ -1,5 +1,5 @@
 import pygame
-from scripts import visual, players, events_on_the_map, constants
+from scripts import visual, characters, events_on_the_map, constants, enemy
 
 SIZE = WIDTH, HEIGHT = constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT
 
@@ -19,17 +19,21 @@ clouds_group = visual.clouds_group
 player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
 
-
 # cloud creation time
 cooldown = 1500
 update_time = -cooldown
 
 # creating objects
-player = players.Knight((WIDTH // 2 - visual.TILE_WIDTH, HEIGHT - 250), tiles_group, enemy_group, player_group)
+player = characters.Alexander((WIDTH // 2 - visual.TILE_WIDTH, HEIGHT - 250), tiles_group, enemy_group, player_group)
 
 statue = events_on_the_map.Statue(all_sprites)
 
 wave = events_on_the_map.Wave(statue, player, tiles_group, enemy_group)
+
+enemy.Goblin(
+            (-50, HEIGHT - 250), tiles_group, player, statue, enemy_group)
+enemy.Skeleton(
+            (0, HEIGHT - 250), tiles_group, player, statue, enemy_group)
 
 clock = pygame.time.Clock()
 FPS = 30

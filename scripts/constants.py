@@ -2,12 +2,29 @@
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 TILE_SIZE = TILE_WIDTH, TILE_HEIGHT = 32, 32
 
-
-knight_heath = 20
+knight_heath = 25
 knight_speed = 5
 knight_power_jump = 15
 knight_attack_power = 5
 knight_cooldown_anim = 100
+update_first_ability = 3000
+update_second_ability = 3000
+
+alexander_heath = 20
+alexander_speed = 4
+alexander_power_jump = 15
+alexander_attack_power = 3
+alexander_cooldown_anim = 75
+alexander_update_first_ability = 3000
+alexander_update_second_ability = 3000
+
+samurai_heath = 15
+samurai_speed = 6
+samurai_power_jump = 18
+samurai_attack_power = 5
+samurai_cooldown_anim = 50
+samurai_update_first_ability = 3000
+samurai_update_second_ability = 3000
 
 goblin_heath = 10
 goblin_speed = 3
@@ -35,6 +52,27 @@ mushroom_range_player = 1000
 
 fire_anim = 75
 quantity_fire = 3
+fire_cooldown = 7000
+
+player_sheet_list = {0: [('player_knight/IDLE.png', 3),
+                         ('player_knight/WALK.png', 8),
+                         ('player_knight/ATTACK.png', 7),
+                         ('player_knight/DEATH.png', 10),
+                         ('player_knight/HURT.png', 3)],
+
+                     1: [('player_alexander/IDLE.png', 6),
+                         ('player_alexander/WALK.png', 8),
+                         ('player_alexander/ATTACK.png', 10),
+                         ('player_alexander/DEATH.png', 30),
+                         ('player_alexander/HURT.png', 5),
+                         ('player_alexander/ABILITY.png', 10)],
+
+                     2: [('player_samurai/IDLE.png', 8),
+                         ('player_samurai/WALK.png', 8),
+                         ('player_samurai/ATTACK.png', 12),
+                         ('player_samurai/DEATH.png', 6),
+                         ('player_samurai/HURT.png', 4)]
+                     }
 
 enemy_specifications = {0: {'heath': goblin_heath,
                             'speed': goblin_speed,

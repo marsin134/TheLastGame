@@ -1,8 +1,10 @@
 import pygame
 from scripts.visual import load_image
-from scripts.constants import TILE_WIDTH, TILE_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, fire_anim, quantity_fire
+from scripts.constants import TILE_WIDTH, TILE_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, fire_anim, quantity_fire, \
+    fire_cooldown
 from random import choice
 from scripts.enemy import Goblin, FlyingEye, Skeleton, Mushroom
+from scripts.players import is_collided_with
 
 
 class Statue(pygame.sprite.Sprite):
@@ -42,7 +44,7 @@ class Statue(pygame.sprite.Sprite):
 
 
 class Fire(pygame.sprite.Sprite):
-    def __init__(self, person, tiles, *group):
+    def __init__(self, person, tiles, *group, pos=-1):
         super().__init__(*group)
         self.frames = []
         self.cur_frame = 0
@@ -53,7 +55,7 @@ class Fire(pygame.sprite.Sprite):
         self.update_time_anim = pygame.time.get_ticks()
 
         self.update_time_fire = pygame.time.get_ticks()
-        self.cooldown_fire = 10000
+        self.cooldown_fire = fire_cooldown
 
         self.variations = choice(['green', 'purple', 'white'])
         # self.variations = 'white'
@@ -64,8 +66,15 @@ class Fire(pygame.sprite.Sprite):
 
         self.image = self.frames[0][self.cur_frame]
 
+        self.tiles = tiles
+
         tile = random_tile(tiles)
-        self.rect = self.image.get_rect().move(tile.rect.x, tile.rect.y - TILE_HEIGHT)
+
+        if pos == -1:
+            self.rect = self.image.get_rect().move(tile.rect.x, tile.rect.y - TILE_HEIGHT)
+
+        else:
+            self.rect = self.image.get_rect().move(pos)
 
         self.mask = pygame.mask.from_surface(self.image)
 
@@ -97,25 +106,43 @@ class Fire(pygame.sprite.Sprite):
             self.kill()
 
     def update(self, surface):
+
+        # if he encounters a player, we improve the player's characteristics
         if pygame.sprite.collide_mask(self, self.person) and self.index == 1:
             self.index = 2
             self.cur_frame = 0
+
             if self.variations == 'green':
                 self.person.hp = self.person.heath_start // 2 + self.person.hp if (
                                                                                           self.person.hp + self.person.heath_start // 2) // self.person.heath_start == 0 \
                     else self.person.heath_start
+
             elif self.variations == 'purple':
                 self.person.attack_power = round(self.person.attack_power * 1.2, 4)
+
             elif self.variations == 'white':
                 self.person.heath_start = round(self.person.heath_start * 1.1, 4)
 
+        # updating the animation
         if pygame.time.get_ticks() - self.update_time_anim > self.cooldown_anim:
             self.update_time_anim = pygame.time.get_ticks()
             self.update_sheet()
 
+        # if the fire burns for a long time, we destroy it
         if pygame.time.get_ticks() - self.update_time_fire > self.cooldown_fire and self.index == 1:
             self.index = 2
             self.cur_frame = 0
+
+        # checking to see if there is a fire in the air
+        self.rect.y += 3
+
+        if not is_collided_with(self, self.tiles) and self.index == 1:
+            # if it is in the air, we destroy the fire
+            self.index = 2
+            self.cur_frame = 0
+
+        # return the fire to its initial position
+        self.rect.y -= 3
 
         surface.blit(self.image, self.rect)
 
@@ -152,35 +179,42 @@ class Wave:
         self.completed_wave = False
 
     def update(self, surface):
-        if sum(self.number_enemyies_in_waves[self.number_waves]) != 0:
-            if pygame.time.get_ticks() - self.update_time > self.cooldown_enemy:
-                self.update_time = pygame.time.get_ticks()
-
-                self.random_choose_enemy()
-
-        elif not self.enemy_group:
-            if self.completed_wave:
-                if pygame.time.get_ticks() - self.update_time > self.cooldown_wave:
-                    self.update_time = pygame.time.get_ticks()
-
-                    self.completed_wave = False
-            else:
-                self.number_waves += 1
-
-                self.statue.hp = self.statue.heath_start
-                self.player.hp = self.player.heath_start
-
-                self.update_time = pygame.time.get_ticks()
-
-                self.completed_wave = True
-
-                self.quantity_firs = quantity_fire
+        # if sum(self.number_enemyies_in_waves[self.number_waves]) != 0:
+        #     if pygame.time.get_ticks() - self.update_time > self.cooldown_enemy:
+        #         self.update_time = pygame.time.get_ticks()
+        #
+        #         self.random_choose_enemy()
+        #
+        # elif not self.enemy_group:
+        #     if self.completed_wave:
+        #         if pygame.time.get_ticks() - self.update_time > self.cooldown_wave:
+        #             self.update_time = pygame.time.get_ticks()
+        #
+        #             self.completed_wave = False
+        #     else:
+        #         self.number_waves += 1
+        #
+        #         self.statue.hp = self.statue.heath_start
+        #         self.player.hp = self.player.heath_start
+        #
+        #         self.update_time = pygame.time.get_ticks()
+        #
+        #         self.completed_wave = True
+        #
+        #         self.quantity_firs = quantity_fire
 
         # creating a fire
         if pygame.time.get_ticks() - self.update_time_fire > self.cooldown_fire and self.quantity_firs > 0:
             Fire(self.player, self.tiles_group, self.fire_group)
             self.update_time_fire = pygame.time.get_ticks()
             self.quantity_firs -= 1
+
+        if self.player.player_index == 0 and self.player.first_ability_activate:
+            if self.quantity_firs > 0:
+                Fire(self.player, self.tiles_group, self.fire_group,
+                     pos=(self.player.rect.x + TILE_WIDTH, self.player.rect.y + TILE_HEIGHT * 3))
+                self.quantity_firs -= 1
+            self.player.first_ability_activate = False
 
         self.fire_group.update(surface)
 
