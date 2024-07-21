@@ -43,10 +43,10 @@ class Knight(Player):
             self.second_icon_ability = load_image('playersPanel/knight_skill_second.png', transforms=(40, 40))
             if self.second_ability_activate:
                 self.hit = True
-                self.hp -= self.heath_start // 2
+                self.hp -= self.hp // 2
 
                 for enemy in self.enemy_group:
-                    enemy.hp -= self.heath_start // 2
+                    enemy.hp -= self.hp // 2
 
                     enemy.hit = True
                     enemy.index = 4
@@ -268,7 +268,7 @@ class Wolf(pygame.sprite.Sprite):
         self.update_time_anim = 0
         self.cooldown_anim = 75
 
-        self.attack_power = attack_power // 2
+        self.attack_power = attack_power
 
         self.enemy_group = enemy_group
 

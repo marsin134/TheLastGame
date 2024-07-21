@@ -1,5 +1,5 @@
 import pygame
-from scripts import visual, characters, events_on_the_map, constants, enemy
+from scripts import visual, characters, events_on_the_map, constants, enemy, boss
 
 SIZE = WIDTH, HEIGHT = constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT
 
@@ -8,7 +8,7 @@ screen = pygame.display.set_mode(SIZE)
 # creating an icon and a window name
 pygame_icon = pygame.image.load('data/image/facilities/statue.png')
 pygame.display.set_icon(pygame_icon)
-pygame.display.set_caption('The Last Game ')
+pygame.display.set_caption('The Last Game')
 
 # inheritance of background and sprite groups
 fon_game = visual.fon_game
@@ -24,16 +24,17 @@ cooldown = 1500
 update_time = -cooldown
 
 # creating objects
-player = characters.Alexander((WIDTH // 2 - visual.TILE_WIDTH, HEIGHT - 250), tiles_group, enemy_group, player_group)
+player = characters.Samurai((WIDTH // 2 - visual.TILE_WIDTH, HEIGHT - 250), tiles_group, enemy_group, player_group)
 
 statue = events_on_the_map.Statue(all_sprites)
 
 wave = events_on_the_map.Wave(statue, player, tiles_group, enemy_group)
 
-enemy.Goblin(
-            (-50, HEIGHT - 250), tiles_group, player, statue, enemy_group)
-enemy.Skeleton(
-            (0, HEIGHT - 250), tiles_group, player, statue, enemy_group)
+# boss = boss.BossSoul(player, statue, tiles_group, enemy_group)
+
+# enemy.DeathEnemy(
+#             (constants.enemy_spawn_x[1] - 25, constants.enemy_spawn_y[0]), tiles_group, player, statue, enemy_group)
+
 
 clock = pygame.time.Clock()
 FPS = 30

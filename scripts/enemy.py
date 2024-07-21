@@ -1,5 +1,6 @@
 import pygame
 from math import sqrt
+from random import choice
 from .visual import load_image
 from .players import is_collided_with
 from scripts import constants as CONST
@@ -71,7 +72,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.hit = False
 
             # if the attack has ended
-            elif self.attack_flag and (self.cur_frame + 1) % len(self.frames[self.index]) == 0:
+            elif self.attack_flag:
                 self.attack_flag = False
                 self.attack_is_complete = False
 
@@ -89,12 +90,7 @@ class Enemy(pygame.sprite.Sprite):
             self.cooldown_anim = 200
 
         elif not self.death:
-            # attacks the player
-            if (self.attack_flag and self.cur_frame > 5 and not self.attack_is_complete
-                    and pygame.sprite.collide_mask(self, self.purpose) and not self.purpose.hit):
-                self.purpose.hp -= self.attack_power
-                self.purpose.hit = True
-                self.attack_is_complete = True
+            self.attack()
 
             # if the target is alive
             if self.purpose.hp > 0:
@@ -176,6 +172,14 @@ class Enemy(pygame.sprite.Sprite):
         else:
             self.rect.x -= self.vx
             self.flip = True
+
+    def attack(self):
+        # attacks the player
+        if (self.attack_flag and self.cur_frame > 5 and not self.attack_is_complete
+                and pygame.sprite.collide_mask(self, self.purpose) and not self.purpose.hit):
+            self.purpose.hp -= self.attack_power
+            self.purpose.hit = True
+            self.attack_is_complete = True
 
 
 class Goblin(Enemy):
@@ -268,3 +272,106 @@ class Mushroom(Enemy):
                 self.flip = True
         else:
             self.index = 0
+
+
+class DeathEnemy(Enemy):
+    def __init__(self, pos, tiles, person, statue, *group):
+        self.enemy_index = 4
+        self.enemy_group = group[0]
+
+        super().__init__(pos, tiles, person, statue, *group)
+
+        self.portal_group = pygame.sprite.Group()
+
+        self.moving_towards_the_goal()
+
+    def moving_towards_the_goal(self):
+        if self.rect.x < self.purpose.rect.x:
+            self.rect.x += self.vx
+            self.flip = True
+        else:
+            self.rect.x -= self.vx
+            self.flip = False
+
+        if not self.attack_flag and choice(range(0, 501)) % 500 == 0:
+            self.attack_flag = True
+
+            self.index = 2
+            self.cur_frame = 0
+
+            self.vx = 0
+
+        if self.hit and choice(range(0, 101)) % 100 == 0 and not self.portal_group:
+            self.rect.x = choice(CONST.enemy_spawn_x) - 25
+            self.rect.y = CONST.enemy_spawn_y[0] - 50
+
+            Portal((self.person.rect.x, self.person.rect.y - 50), self.person, self.enemy_group, self.portal_group)
+
+        if self.attack_flag and self.cur_frame == 3:
+            self.rect.x = self.purpose.rect.x
+
+    def attack(self):
+        # attacks the player
+        if (self.attack_flag and self.cur_frame > 9 and not self.attack_is_complete
+                and pygame.sprite.collide_mask(self, self.purpose) and not self.purpose.hit):
+            self.purpose.hp -= self.attack_power
+            self.purpose.hit = True
+            self.attack_is_complete = True
+
+
+class Portal(pygame.sprite.Sprite):
+    def __init__(self, pos, person, *group):
+        super().__init__(*group)
+
+        self.frames = portal_frames
+
+        self.cur_frame = 0
+        self.index = 1
+
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.image.get_rect().move(pos)
+
+        self.mask = pygame.mask.from_surface(self.image)
+
+        self.update_time_anim = 0
+        self.cooldown_anim = 50
+
+        self.attack_power = CONST.portal_attack_power
+
+        self.person = person
+
+        self.hit = True
+
+    def update(self, surface):
+        self.rect.y += 1
+
+        if pygame.sprite.collide_mask(self, self.person) and not self.person.hit:
+            self.person.hp -= self.attack_power
+            self.person.hit = True
+
+        surface.blit(self.image, self.rect)
+
+        # updates the animation for a certain period of time
+        if pygame.time.get_ticks() - self.update_time_anim > self.cooldown_anim:
+            self.update_sheet()
+            self.update_time_anim = pygame.time.get_ticks()
+
+    def update_sheet(self):
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
+        self.mask = pygame.mask.from_surface(self.image)
+
+        if self.cur_frame == 0:
+            self.kill()
+
+
+portal_frames = []
+
+portal_sheet = load_image(f'enemy/death_enemy/portal.png')
+len_sheet = 16
+
+for j in range(len_sheet):
+    rect_portal = pygame.Rect(0, 0, portal_sheet.get_width() // len_sheet, portal_sheet.get_height())
+
+    frame_location_portal = (rect_portal.w * j, 0)
+    portal_frames.append(portal_sheet.subsurface(pygame.Rect(frame_location_portal, rect_portal.size)))

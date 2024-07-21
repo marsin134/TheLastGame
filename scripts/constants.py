@@ -2,6 +2,9 @@
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 TILE_SIZE = TILE_WIDTH, TILE_HEIGHT = 32, 32
 
+enemy_spawn_x = [-125, SCREEN_WIDTH - 70]
+enemy_spawn_y = [SCREEN_HEIGHT - 300, SCREEN_HEIGHT - 700]
+
 knight_heath = 25
 knight_speed = 5
 knight_power_jump = 15
@@ -18,7 +21,7 @@ alexander_cooldown_anim = 75
 alexander_update_first_ability = 3000
 alexander_update_second_ability = 3000
 
-samurai_heath = 15
+samurai_heath = 25
 samurai_speed = 6
 samurai_power_jump = 18
 samurai_attack_power = 5
@@ -49,6 +52,21 @@ mushroom_speed = 4
 mushroom_attack_power = 5
 mushroom_cooldown_anim = 75
 mushroom_range_player = 1000
+
+
+death_enemy_heath = 50
+death_enemy_speed = 3
+death_enemy_attack_power = 20
+death_enemy_cooldown_anim = 100
+death_enemy_range_player = 250
+
+bossSoul_heath = 200
+bossSoul_speeds = 3
+bossSoul_cooldown_stop_moving = 1500
+
+portal_attack_power = 3
+
+ball_attack_power = 1
 
 fire_anim = 75
 quantity_fire = 3
@@ -113,4 +131,15 @@ enemy_specifications = {0: {'heath': goblin_heath,
                                            ('Mushroom/Run.png', 8),
                                            ('Mushroom/Attack.png', 8),
                                            ('Mushroom/Death.png', 4),
-                                           ('Mushroom/Take Hit.png', 4)]}}
+                                           ('Mushroom/Take Hit.png', 4)]},
+                        4: {'heath': death_enemy_heath,
+                            'speed': death_enemy_speed,
+                            'attack': death_enemy_attack_power,
+                            'anim': death_enemy_cooldown_anim,
+                            'range': death_enemy_range_player,
+                            'list_sheet': [('death_enemy/Idle.png', 6),
+                                           ('death_enemy/Run.png', 12),
+                                           ('death_enemy/Attack.png', 15),
+                                           ('death_enemy/Death.png', 22),
+                                           ('death_enemy/Take Hit.png', 5)]},
+                        }

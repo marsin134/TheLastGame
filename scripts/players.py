@@ -171,10 +171,14 @@ class Player(pygame.sprite.Sprite):
                     if not self.jump:
                         self.jump = True
 
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                self.attack_flag = True
-                self.cur_frame = 0
-                self.index = 2
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    self.attack_flag = True
+                    self.cur_frame = 0
+                    self.index = 2
+
+                elif event.button == 3:
+                    self.first_ability_activate = True
 
     def cut_sheet(self, list_sheet):
         # creating sprites

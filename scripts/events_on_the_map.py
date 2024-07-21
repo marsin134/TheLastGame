@@ -1,7 +1,7 @@
 import pygame
 from scripts.visual import load_image
 from scripts.constants import TILE_WIDTH, TILE_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, fire_anim, quantity_fire, \
-    fire_cooldown
+    fire_cooldown, enemy_spawn_x, enemy_spawn_y
 from random import choice
 from scripts.enemy import Goblin, FlyingEye, Skeleton, Mushroom
 from scripts.players import is_collided_with
@@ -220,12 +220,16 @@ class Wave:
 
     def random_choose_enemy(self):
         enemy_index = choice(range(len(self.number_enemyies_in_waves[self.number_waves])))
+
         while self.number_enemyies_in_waves[self.number_waves][enemy_index] == 0:
             enemy_index = choice(range(len(self.number_enemyies_in_waves[self.number_waves])))
+
         self.number_enemyies_in_waves[self.number_waves][enemy_index] -= 1
+
         enemy = self.dict_enemy[enemy_index](
-            (choice([-50, SCREEN_WIDTH - 70]), choice([SCREEN_HEIGHT - 250, SCREEN_HEIGHT - 700])),
+            (choice(enemy_spawn_x), choice(enemy_spawn_y)),
             self.tiles_group, self.player, self.statue, self.enemy_group)
+
         self.improvement_enemy(enemy)
 
     def improvement_enemy(self, enemy):
@@ -241,3 +245,6 @@ def random_tile(tiles_group):
         if iteration == index:
             return tile
         iteration += 1
+
+
+
