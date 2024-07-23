@@ -1,10 +1,10 @@
 import pygame
-from scripts.players import Player
+from scripts import players
 from scripts import constants as CONST
 from scripts.visual import load_image
 
 
-class Knight(Player):
+class Knight(players.Player):
     def __init__(self, pos, tiles, enemy_group, *group):
         self.player_index = 0
 
@@ -34,6 +34,7 @@ class Knight(Player):
             self.first_icon_ability = load_image('playersPanel/knight_skill_first.png', transforms=(40, 40))
             if self.first_ability_activate:
                 self.time_first_ability = pygame.time.get_ticks()
+                first_ability_sound.play()
         else:
             self.first_icon_ability = self.recharge_icon
             self.first_ability_activate = False
@@ -49,7 +50,8 @@ class Knight(Player):
                     enemy.hp -= self.hp // 2
 
                     enemy.hit = True
-                    enemy.index = 4
+                    if len(enemy.frames) >= 5:
+                        enemy.index = 4
 
                 self.time_second_ability = pygame.time.get_ticks()
 
@@ -59,7 +61,7 @@ class Knight(Player):
             self.second_ability_activate = False
 
 
-class Alexander(Player):
+class Alexander(players.Player):
     def __init__(self, pos, tiles, enemy_group, *group):
         self.player_index = 1
 
@@ -92,6 +94,11 @@ class Alexander(Player):
 
         # if the animation has come to the moment of impact
         if self.attack_flag and not (self.cur_frame < 3 or 5 <= self.cur_frame <= 6) and not self.attack_is_complete:
+
+            if ((self.cur_frame == 3 or self.cur_frame == 7)
+                    and pygame.time.get_ticks() - self.update_time_anim >= self.cooldown_anim):
+                players.sound_attack.play()
+
             for sprite in self.enemy_group:
                 if pygame.sprite.collide_mask(self, sprite) and not sprite.hit:
                     sprite.hp -= self.attack_power
@@ -105,7 +112,9 @@ class Alexander(Player):
         if pygame.time.get_ticks() - self.time_first_ability >= CONST.update_first_ability:
             self.first_icon_ability = load_image('playersPanel/alexander_skill_first.png', transforms=(40, 40))
             if self.first_ability_activate:
-                self.hp = self.heath_start
+                self.hp = self.heath_start // 4 + self.hp if (
+                                                                                          self.hp + self.heath_start // 4) // self.heath_start == 0 \
+                    else self.heath_start
 
                 self.index = 5
                 self.ability_anim = False
@@ -113,6 +122,7 @@ class Alexander(Player):
                 self.first_ability_activate = False
 
                 self.time_first_ability = pygame.time.get_ticks()
+                first_ability_sound.play()
         else:
             self.first_icon_ability = self.recharge_icon
             self.first_ability_activate = False
@@ -138,7 +148,7 @@ class Alexander(Player):
             self.second_ability_activate = False
 
 
-class Samurai(Player):
+class Samurai(players.Player):
     def __init__(self, pos, tiles, enemy_group, *group):
         self.player_index = 2
 
@@ -171,6 +181,11 @@ class Samurai(Player):
 
         # if the animation has come to the moment of impact
         if self.attack_flag and not (self.cur_frame < 4 or 6 <= self.cur_frame <= 9) and not self.attack_is_complete:
+
+            if ((self.cur_frame == 5 or self.cur_frame == 10)
+                    and pygame.time.get_ticks() - self.update_time_anim >= self.cooldown_anim):
+                players.sound_attack.play()
+
             for sprite in self.enemy_group:
                 if pygame.sprite.collide_mask(self, sprite) and not sprite.hit:
                     sprite.hp -= self.attack_power
@@ -191,6 +206,8 @@ class Samurai(Player):
 
                 self.first_ability_activate = False
                 self.time_first_ability = pygame.time.get_ticks()
+
+                first_ability_sound.play()
         else:
             self.first_icon_ability = self.recharge_icon
             self.first_ability_activate = False
@@ -236,6 +253,10 @@ class Sword(pygame.sprite.Sprite):
 
         self.hit = True
 
+        self.hp = 0
+
+        sound_sword.play()
+
     def update(self, surface):
         if not -300 < self.rect.x < CONST.SCREEN_WIDTH + 300 or not -300 < self.rect.y < CONST.SCREEN_HEIGHT + 300:
             self.kill()
@@ -274,6 +295,10 @@ class Wolf(pygame.sprite.Sprite):
 
         self.hit = True
 
+        self.hp = 0
+
+        sound_wolf.play()
+
     def update(self, surface):
         self.rect.x -= 15
 
@@ -308,3 +333,7 @@ for j in range(len_sheet):
 
     frame_location_wolf = (rect_wolf.w * j, 0)
     wolf_frames.append(wolf_sheet.subsurface(pygame.Rect(frame_location_wolf, rect_wolf.size)))
+
+sound_sword = pygame.mixer.Sound('data/music/trenirovochnyiy-udar-mechom.mp3')
+sound_wolf = pygame.mixer.Sound('data/music/ozloblennoe-ryichanie-molodogo-rezvogo-volka.mp3')
+first_ability_sound = pygame.mixer.Sound('data/music/data_music_up_m.wav')

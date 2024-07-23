@@ -63,6 +63,8 @@ class BossSoul(pygame.sprite.Sprite):
                            1: self.second_stage,
                            2: self.third_stage}
 
+        boss_sound.play(-1)
+
     def update(self, surface):
         if self.hp <= 0 and self.index != 2:
             self.death = True
@@ -133,7 +135,7 @@ class BossSoul(pygame.sprite.Sprite):
             if choice(range(0, 4)) % 4 != 0:
 
                 Ball((choice([choice(range(0, CONST.SCREEN_WIDTH // 2 - 175)),
-                              choice(range(CONST.SCREEN_WIDTH // 2, CONST.SCREEN_WIDTH))]), -100),
+                              choice(range(CONST.SCREEN_WIDTH // 2 + 25, CONST.SCREEN_WIDTH))]), -100),
                      (0, 5), self.person, self.statue, self.tiles_group, self.enemy_group)
 
             else:
@@ -257,6 +259,8 @@ class Ball(pygame.sprite.Sprite):
 
         self.hit = True
 
+        self.hp = 0
+
     def update(self, surface):
         self.rect.x += self.vx
         self.rect.y += self.vy
@@ -316,7 +320,9 @@ class Crystal(pygame.sprite.Sprite):
         self.heath_start = self.hp = self.boss.heath_start // 1.5 - self.boss.heath_start // 4
 
     def update(self, surface):
-        self.hit = False
+        if self.hit:
+            sword_hit_sound.play()
+            self.hit = False
 
         surface.blit(self.image, self.rect)
         self.draw_heath(surface)
@@ -367,3 +373,9 @@ for j in range(len_sheet):
 
     frame_location_portal = (rect_crystal.w * j, 0)
     crystal_frames.append(crystal_sheet.subsurface(pygame.Rect(frame_location_portal, rect_crystal.size)))
+
+sword_hit_sound = pygame.mixer.Sound('data/music/a blow to the armor.mp3')
+boss_sound = pygame.mixer.Sound('data/music/Slide Cinética.mp3')
+
+sword_hit_sound.set_volume(0.1)
+boss_sound.set_volume(0.9)

@@ -23,48 +23,53 @@ enemy_group = pygame.sprite.Group()
 cooldown = 1500
 update_time = -cooldown
 
+pause = False
+
 # creating objects
-player = characters.Samurai((WIDTH // 2 - visual.TILE_WIDTH, HEIGHT - 250), tiles_group, enemy_group, player_group)
+player = characters.Alexander((WIDTH // 2 - visual.TILE_WIDTH, HEIGHT - 250), tiles_group, enemy_group, player_group)
 
 statue = events_on_the_map.Statue(all_sprites)
 
 wave = events_on_the_map.Wave(statue, player, tiles_group, enemy_group)
 
-# boss = boss.BossSoul(player, statue, tiles_group, enemy_group)
-
-# enemy.DeathEnemy(
-#             (constants.enemy_spawn_x[1] - 25, constants.enemy_spawn_y[0]), tiles_group, player, statue, enemy_group)
-
-
 clock = pygame.time.Clock()
 FPS = 30
 
 running = True
+
+events_on_the_map.fon_game_music_waterflame.play(-1)
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
 
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            pause = not pause
+
         # tracking keystrokes for control
         player.events_movement(event)
 
-    screen.blit(fon_game, (0, 0))
+    if not pause:
+        screen.blit(fon_game, (0, 0))
 
-    # creating a cloud
-    if pygame.time.get_ticks() - update_time > cooldown:
-        visual.Clouds(clouds_group, all_sprites)
-        update_time = pygame.time.get_ticks()
+        # creating a cloud
+        if pygame.time.get_ticks() - update_time > cooldown:
+            visual.Clouds(clouds_group, all_sprites)
+            update_time = pygame.time.get_ticks()
 
-    # rendering and updating sprites
-    all_sprites.draw(screen)
+        # rendering and updating sprites
+        all_sprites.draw(screen)
 
-    clouds_group.update()
-    statue.update(screen)
+        clouds_group.update()
+        statue.update(screen)
 
-    enemy_group.update(screen)
-    player_group.update(screen)
+        enemy_group.update(screen)
+        player_group.update(screen)
 
-    wave.update(screen)
+        wave.update(screen)
+    else:
+        visual.display_text(screen, 'Pause', 100, 1000)
+        screen.blit(visual.image_grey, (0, 0))
 
     pygame.display.flip()
 

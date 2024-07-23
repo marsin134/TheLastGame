@@ -44,6 +44,9 @@ class Enemy(pygame.sprite.Sprite):
 
         self.heath_start = self.hp = CONST.enemy_specifications[self.enemy_index]['heath']
 
+        self.sound_attack_enemy = pygame.mixer.Sound('data/music/moschnyiy-udar-po-vozduhu.mp3')
+        self.attack_frame_index = 6
+
         self.hit = False
         self.death = False
 
@@ -75,6 +78,9 @@ class Enemy(pygame.sprite.Sprite):
             elif self.attack_flag:
                 self.attack_flag = False
                 self.attack_is_complete = False
+
+        if self.cur_frame == self.attack_frame_index and self.attack_flag:
+            self.sound_attack_enemy.play()
 
         self.cur_frame = (self.cur_frame + 1) % len(self.frames[self.index])
         self.image = self.frames[self.index][self.cur_frame]
@@ -175,7 +181,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def attack(self):
         # attacks the player
-        if (self.attack_flag and self.cur_frame > 5 and not self.attack_is_complete
+        if (self.attack_flag and self.cur_frame > self.attack_frame_index - 1 and not self.attack_is_complete
                 and pygame.sprite.collide_mask(self, self.purpose) and not self.purpose.hit):
             self.purpose.hp -= self.attack_power
             self.purpose.hit = True
@@ -212,6 +218,8 @@ class FlyingEye(Enemy):
         self.enemy_index = 2
         super().__init__(pos, tiles, person, statue, *group)
         self.vy = 1
+        self.sound_attack_enemy = pygame.mixer.Sound('data/music/a blow to the armor.mp3')
+        self.sound_attack_enemy.set_volume(0.3)
 
     def pick_target(self):
         # defines the goal
@@ -285,6 +293,9 @@ class DeathEnemy(Enemy):
 
         self.moving_towards_the_goal()
 
+        self.sound_attack_enemy = pygame.mixer.Sound('data/music/oglushitelnyiy-zvon-pri-udare-mechom.mp3')
+        self.attack_frame_index = 10
+
     def moving_towards_the_goal(self):
         if self.rect.x < self.purpose.rect.x:
             self.rect.x += self.vx
@@ -312,7 +323,7 @@ class DeathEnemy(Enemy):
 
     def attack(self):
         # attacks the player
-        if (self.attack_flag and self.cur_frame > 9 and not self.attack_is_complete
+        if (self.attack_flag and self.cur_frame > self.attack_frame_index - 1 and not self.attack_is_complete
                 and pygame.sprite.collide_mask(self, self.purpose) and not self.purpose.hit):
             self.purpose.hp -= self.attack_power
             self.purpose.hit = True
@@ -341,6 +352,10 @@ class Portal(pygame.sprite.Sprite):
         self.person = person
 
         self.hit = True
+
+        self.hp = 0
+
+        portal_sound.play()
 
     def update(self, surface):
         self.rect.y += 1
@@ -375,3 +390,7 @@ for j in range(len_sheet):
 
     frame_location_portal = (rect_portal.w * j, 0)
     portal_frames.append(portal_sheet.subsurface(pygame.Rect(frame_location_portal, rect_portal.size)))
+
+
+portal_sound = pygame.mixer.Sound('data/music/grom.mp3')
+portal_sound.set_volume(4)

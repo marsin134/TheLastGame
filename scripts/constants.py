@@ -6,71 +6,73 @@ enemy_spawn_x = [-125, SCREEN_WIDTH - 70]
 enemy_spawn_y = [SCREEN_HEIGHT - 300, SCREEN_HEIGHT - 700]
 
 knight_heath = 25
-knight_speed = 5
-knight_power_jump = 15
+knight_speed = 4
+knight_power_jump = 17
 knight_attack_power = 5
 knight_cooldown_anim = 100
 update_first_ability = 3000
-update_second_ability = 3000
+update_second_ability = 15000
 
 alexander_heath = 20
-alexander_speed = 4
-alexander_power_jump = 15
-alexander_attack_power = 3
+alexander_speed = 5
+alexander_power_jump = 17
+alexander_attack_power = 6
 alexander_cooldown_anim = 75
-alexander_update_first_ability = 3000
-alexander_update_second_ability = 3000
+alexander_update_first_ability = 10000
+alexander_update_second_ability = 7500
 
-samurai_heath = 25
+samurai_heath = 15
 samurai_speed = 6
-samurai_power_jump = 18
+samurai_power_jump = 19
 samurai_attack_power = 5
 samurai_cooldown_anim = 50
-samurai_update_first_ability = 3000
-samurai_update_second_ability = 3000
+samurai_update_first_ability = 1000
+samurai_update_second_ability = 7500
 
-goblin_heath = 10
+goblin_heath = 12.5
 goblin_speed = 3
 goblin_attack_power = 3
 goblin_cooldown_anim = 75
 goblin_range_player = 150
 
-skeleton_heath = 15
+skeleton_heath = 17.5
 skeleton_speed = 2
 skeleton_attack_power = 7
 skeleton_cooldown_anim = 100
 skeleton_range_player = 200
 
-flying_eye_heath = 10
+flying_eye_heath = 12.5
 flying_eye_speed = 2
 flying_eye_attack_power = 2.5
 flying_eye_cooldown_anim = 50
 flying_eye_range_player = 0
 
-mushroom_heath = 15
+mushroom_heath = 17.5
 mushroom_speed = 4
 mushroom_attack_power = 5
 mushroom_cooldown_anim = 75
 mushroom_range_player = 1000
 
-
-death_enemy_heath = 50
+death_enemy_heath = 75
 death_enemy_speed = 3
-death_enemy_attack_power = 20
+death_enemy_attack_power = 25
 death_enemy_cooldown_anim = 100
 death_enemy_range_player = 250
 
-bossSoul_heath = 200
+bossSoul_heath = 400
 bossSoul_speeds = 3
 bossSoul_cooldown_stop_moving = 1500
 
 portal_attack_power = 3
 
-ball_attack_power = 1
+ball_attack_power = 7
 
 fire_anim = 75
-quantity_fire = 3
+quantity_fire = 4
 fire_cooldown = 7000
+
+cooldown_enemy_spawn = 3500
+cooldown_wave = 4000
 
 player_sheet_list = {0: [('player_knight/IDLE.png', 3),
                          ('player_knight/WALK.png', 8),

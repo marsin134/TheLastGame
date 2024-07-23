@@ -2,6 +2,8 @@ import pygame
 from .visual import load_image
 from scripts import constants as CONST
 
+joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, tiles, enemy_group, *group):
@@ -55,8 +57,15 @@ class Player(pygame.sprite.Sprite):
         self.time_second_ability = -CONST.update_second_ability
 
         self.back_icon = load_image('playersPanel/Frame.png', transforms=(48, 48))
+        self.back_min_icon = load_image('playersPanel/Frame.png', transforms=(16, 16))
         self.preview = load_image('playersPanel/knight.png', transforms=(128, 128))
         self.recharge_icon = load_image('playersPanel/recharge.png', transforms=(40, 40))
+
+        self.font = pygame.font.Font('data/fonts/Stefan Stoychev - Block Light.ttf', 12)
+        self.text_button_first_ability = self.font.render('X', False, (255, 255, 255))
+        self.text_button_second_ability = self.font.render('C', False, (255, 255, 255))
+
+        self.joystick = None
 
     def update(self, surface):
         # If he died
@@ -68,6 +77,9 @@ class Player(pygame.sprite.Sprite):
         elif not self.death:
             self.rect.x += self.movement_x
             self.rect.y += self.movement_y
+
+            if self.movement_x == 0:
+                sound_walking.stop()
 
             # increasing the force of gravity
             if self.jump and not self.hit:
@@ -92,10 +104,6 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.movement_y += 0.2
 
-            # if the player goes beyond the boundaries of the world
-            if self.rect.x + CONST.TILE_WIDTH * 2 <= 0 or self.rect.x >= CONST.SCREEN_WIDTH - CONST.TILE_WIDTH * 3.5:
-                self.movement_x -= self.movement_x
-
             self.attack_is_complete = self.attack_enemy()
 
             # if the player has taken damage and the damage animation has not started yet
@@ -103,6 +111,12 @@ class Player(pygame.sprite.Sprite):
                 self.cur_frame = 0
                 self.attack_flag = False
                 self.index = 4
+
+                sound_hit.play()
+
+        # if the player goes beyond the boundaries of the world
+        if self.rect.x + CONST.TILE_WIDTH * 3 <= 0 or self.rect.x >= CONST.SCREEN_WIDTH - CONST.TILE_WIDTH * 4:
+            self.rect.x -= self.movement_x
 
         # displays the player
         surface.blit(self.image, self.rect)
@@ -118,67 +132,160 @@ class Player(pygame.sprite.Sprite):
 
     def events_movement(self, event):
         if not self.death:
-            if event.type == pygame.KEYUP:
-                if event.key == pygame.K_d and not pygame.key.get_pressed()[pygame.K_a]:
-                    self.movement_x = 0
-                    if not self.attack_flag:
-                        self.index = 0
+            if self.joystick:
+                self.events_movement_joystick(event)
 
-                if event.key == pygame.K_a and not pygame.key.get_pressed()[pygame.K_d]:
-                    self.movement_x = 0
-                    if not self.attack_flag:
-                        self.index = 0
+            self.events_movement_keyboard(event)
 
-                if event.key == pygame.K_LCTRL:
-                    self.speed //= 1.5
-                    self.movement_x //= 1.5
-                    self.cooldown_anim *= 2
-                    self.attack_power *= 2
+        if event.type == pygame.JOYDEVICEADDED:
+            self.joystick = pygame.joystick.Joystick(event.device_index)
+            self.text_button_second_ability = self.font.render('Y', False, (255, 255, 255))
 
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_d:
-                    self.movement_x = self.speed
-                    self.flip = False
-                    if not self.attack_flag:
-                        self.index = 1
+        if event.type == pygame.JOYDEVICEREMOVED:
+            self.joystick = None
+            self.text_button_second_ability = self.font.render('C', False, (255, 255, 255))
 
-                if event.key == pygame.K_a:
-                    self.movement_x = -self.speed
+    def events_movement_keyboard(self, event):
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_d and not pygame.key.get_pressed()[pygame.K_a]:
+                self.movement_x = 0
+                if not self.attack_flag:
+                    self.index = 0
+
+            if event.key == pygame.K_a and not pygame.key.get_pressed()[pygame.K_d]:
+                self.movement_x = 0
+                if not self.attack_flag:
+                    self.index = 0
+
+            if event.key == pygame.K_LCTRL:
+                self.speed //= 1.5
+                self.movement_x //= 1.5
+                self.cooldown_anim *= 2
+                self.attack_power *= 2
+
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_d:
+                self.movement_x = self.speed
+                self.flip = False
+                if not self.attack_flag:
+                    self.index = 1
+                if not self.jump:
+                    sound_walking.stop()
+                    sound_walking.play(-1)
+
+            if event.key == pygame.K_a:
+                self.movement_x = -self.speed
+                self.flip = True
+                if not self.attack_flag:
+                    self.index = 1
+                if not self.jump:
+                    sound_walking.stop()
+                    sound_walking.play(-1)
+
+            if event.key == pygame.K_LCTRL:
+                self.speed *= 1.5
+                self.movement_x *= 1.5
+                self.cooldown_anim //= 2
+                self.attack_power /= 2
+
+            if event.key == pygame.K_x:
+                self.first_ability_activate = True
+
+            if event.key == pygame.K_c:
+                self.second_ability_activate = True
+
+            # if event.key == pygame.K_l:
+            #     for enemy in self.enemy_group:
+            #         enemy.kill()
+            #
+            # if event.key == pygame.K_e:
+            #     for enemy in self.enemy_group:
+            #         print(f'attack:{enemy.attack_power} hp:{enemy.heath_start}')
+
+            if event.key == pygame.K_SPACE:
+                if self.power_attraction <= 10 and self.double_jump:
+                    self.power_attraction = self.power_jump
+                    self.double_jump = False
+
+                    sound_jump.play()
+                if not self.jump:
+                    self.jump = True
+
+                    sound_jump.play()
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                self.attack_flag = True
+                self.cur_frame = 0
+                self.index = 2
+
+            elif event.button == 3:
+                self.first_ability_activate = True
+
+    def events_movement_joystick(self, event):
+        if event.type == 1536 or event.type == 1538:
+            hats = self.joystick.get_numhats()
+
+            for i in range(hats):
+                if not self.joystick.get_axis(0) == 0:
+                    self.movement_x = self.speed * self.joystick.get_axis(0)
+                else:
+                    self.movement_x = self.speed * self.joystick.get_hat(i)[0]
+
+                if not self.attack_flag and not self.hit:
+                    self.index = 1
+
+                if self.movement_x < 0:
                     self.flip = True
-                    if not self.attack_flag:
-                        self.index = 1
 
-                if event.key == pygame.K_LCTRL:
-                    self.speed *= 1.5
-                    self.movement_x *= 1.5
-                    self.cooldown_anim //= 2
-                    self.attack_power /= 2
+                elif self.movement_x > 0:
+                    self.flip = False
 
-                if event.key == pygame.K_x:
-                    self.first_ability_activate = True
+                elif not self.attack_flag and not self.hit:
+                    self.index = 0
+                    sound_walking.stop()
 
-                if event.key == pygame.K_c:
-                    self.second_ability_activate = True
-
-                # if event.key == pygame.K_q:
-                #     self.heath_start += 1
-                #     self.hp += 1
-
-                if event.key == pygame.K_SPACE:
+                if self.joystick.get_hat(i)[1] != 0 or self.joystick.get_axis(1) == -1.0:
                     if self.power_attraction <= 10 and self.double_jump:
                         self.power_attraction = self.power_jump
                         self.double_jump = False
+
+                        sound_jump.play()
+
                     if not self.jump:
                         self.jump = True
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    self.attack_flag = True
-                    self.cur_frame = 0
-                    self.index = 2
+                        sound_jump.play()
 
-                elif event.button == 3:
-                    self.first_ability_activate = True
+        if event.type == pygame.JOYBUTTONUP:
+            if event.button == 0:
+                self.speed //= 1.5
+                self.movement_x //= 1.5
+                self.cooldown_anim *= 2
+                self.attack_power *= 2
+
+            elif event.button == 1:
+                self.attack_flag = True
+                self.cur_frame = 0
+                self.index = 2
+
+            elif event.button == 2:
+                self.first_ability_activate = True
+
+            elif event.button == 3:
+                self.second_ability_activate = True
+
+        elif event.type == pygame.JOYBUTTONDOWN:
+            if event.button == 0:
+                self.speed *= 1.5
+                self.movement_x *= 1.5
+                self.cooldown_anim //= 2
+                self.attack_power /= 2
+
+        if (self.joystick.get_axis(5) > 0.98 or self.joystick.get_axis(4) > 0.98) and not self.attack_flag:
+            self.attack_flag = True
+            self.cur_frame = 0
+            self.index = 2
 
     def cut_sheet(self, list_sheet):
         # creating sprites
@@ -230,6 +337,10 @@ class Player(pygame.sprite.Sprite):
 
         # if the animation has come to the moment of impact
         if self.attack_flag and self.cur_frame > 3 and not self.attack_is_complete:
+
+            if self.cur_frame == 4 and pygame.time.get_ticks() - self.update_time_anim >= self.cooldown_anim:
+                sound_attack.play()
+
             for sprite in self.enemy_group:
                 if pygame.sprite.collide_mask(self, sprite) and not sprite.hit:
                     sprite.hp -= self.attack_power
@@ -259,12 +370,28 @@ class Player(pygame.sprite.Sprite):
         surface.blit(self.back_icon, (coordinates_list[0], coordinates_list[1] * 2.5))
         surface.blit(self.back_icon, (coordinates_list[2] - 40 + coordinates_list[0], coordinates_list[1] * 2.5))
 
+        surface.blit(self.back_min_icon, (coordinates_list[0] * 1.1, coordinates_list[1] * 2.5 * 1.65))
+        surface.blit(self.back_min_icon,
+                     ((coordinates_list[2] - 40 + coordinates_list[0]) * 1.06, coordinates_list[1] * 2.5 * 1.65))
+
+        surface.blit(self.text_button_first_ability,
+                     (coordinates_list[0] * 1.135, coordinates_list[1] * 2.5 * 1.65 - 2))
+        surface.blit(self.text_button_second_ability, ((coordinates_list[2] - 40 + coordinates_list[0]) * 1.08,
+                                                       coordinates_list[1] * 2.5 * 1.65 - 2))
+
         pygame.draw.rect(surface, (0, 0, 0),
                          (coordinates_list[0] + 45, coordinates_list[1] * 3.2, coordinates_list[2] - 83, 10))
 
         surface.blit(self.first_icon_ability, (coordinates_list[0] + 4, coordinates_list[1] * 2.5 + 4))
         surface.blit(self.second_icon_ability,
+
                      (coordinates_list[2] - 36 + coordinates_list[0], coordinates_list[1] * 2.5 + 4))
+
+        text_heath = self.font.render(f'heath_full: {self.heath_start}', False, (0, 0, 0))
+        text_attack = self.font.render(f'attack power: {self.attack_power}', False, (0, 0, 0))
+
+        surface.blit(text_heath, (0, 150))
+        surface.blit(text_attack, (0, 165))
 
 
 def is_collided_with(sprite_person, sprite_group):
@@ -272,3 +399,11 @@ def is_collided_with(sprite_person, sprite_group):
         if pygame.sprite.collide_mask(sprite_person, sprite):
             return sprite
     return False
+
+
+sound_jump = pygame.mixer.Sound('data/music/jump_sound.mp3')
+sound_walking = pygame.mixer.Sound('data/music/hodbyi.mp3')
+sound_attack = pygame.mixer.Sound('data/music/zvuk-byistrogo-vzmaha-mecha.mp3')
+sound_hit = pygame.mixer.Sound('data/music/taking damage by a human.mp3')
+
+sound_jump.set_volume(0.5)

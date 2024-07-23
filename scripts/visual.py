@@ -136,6 +136,19 @@ def create_map():
         Clouds(clouds_group, all_sprites, pos_x=i)
 
 
+def display_text(surface, user_text, scale, transparency):
+    font = pygame.font.Font('data/fonts/Stefan Stoychev - Block Light.ttf', scale)
+    text = font.render(user_text, False, (0, 0, 0))
+
+    text.convert_alpha()
+    text.set_alpha(transparency)
+
+    pos_x = SCREEN_WIDTH // 2 - len(user_text) * scale // 5.5
+    pos_y = SCREEN_HEIGHT // 2 - scale * 3 // 2
+
+    surface.blit(text, (pos_x, pos_y))
+
+
 # different variations of clouds
 clouds_list_name = ['clouds1.png', 'clouds2.png', 'clouds3.png']
 
@@ -147,3 +160,10 @@ clouds_group = pygame.sprite.Group()
 create_map()
 
 fon_game = load_image('fons/fon_game.png', transforms=(SCREEN_WIDTH, SCREEN_HEIGHT))
+fon_lose = load_image('fons/lose_fon.png', transforms=(SCREEN_WIDTH, SCREEN_HEIGHT))
+fon_win = load_image('fons/win_fon.png', transforms=(SCREEN_WIDTH, SCREEN_HEIGHT))
+
+image_grey = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+image_grey.fill((128, 128, 128))
+image_grey.set_colorkey((0, 0, 0))
+image_grey.set_alpha(30)
