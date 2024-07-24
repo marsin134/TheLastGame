@@ -1,5 +1,5 @@
 import pygame
-from scripts import visual
+from scripts import visual, menu
 from scripts import constants as CONST
 from random import choice
 from scripts.enemy import Goblin, FlyingEye, Skeleton, Mushroom, DeathEnemy
@@ -107,7 +107,6 @@ class Fire(pygame.sprite.Sprite):
             self.kill()
 
     def update(self, surface):
-
         # if he encounters a player, we improve the player's characteristics
         if pygame.sprite.collide_mask(self, self.person) and self.index == 1:
             fire_sound_collide.play()
@@ -121,7 +120,8 @@ class Fire(pygame.sprite.Sprite):
                     else self.person.heath_start
 
             elif self.variations == 'purple':
-                self.person.attack_power = round(self.person.attack_power * 1.05, 4)
+                # difficulty = float(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readlines()[1].split()[-1])
+                self.person.attack_power = round(self.person.attack_power * (1 + 0.05), 4)
 
             elif self.variations == 'white':
                 self.person.heath_start = round(self.person.heath_start * 1.05, 4)
@@ -204,6 +204,8 @@ class Wave:
             if self.scale_frame_text < 100:
                 self.scale_frame_text += 2
                 self.transparency_text += 10
+            else:
+                menu.exit_in_pause.update(surface)
 
         # if the user lose
         elif self.death_player and self.scale_frame_text <= 100:
@@ -211,6 +213,8 @@ class Wave:
             if self.scale_frame_text < 100:
                 self.scale_frame_text += 2
                 self.transparency_text += 10
+            else:
+                menu.exit_in_pause.update(surface)
 
         # otherwise, update the wave
         else:
@@ -251,6 +255,9 @@ class Wave:
 
             self.fire_group.update(surface)
 
+        if len(str(CONST.money)) > 6:
+            CONST.money = 999999
+
     def random_choose_enemy(self):
         # Chooses a random enemy
         enemy_index = choice(range(len(self.number_enemyies_in_waves[self.number_waves])))
@@ -271,8 +278,9 @@ class Wave:
         self.improvement_enemy(enemy)
 
     def improvement_enemy(self, enemy):
-        enemy.heath_start = enemy.hp = enemy.heath_start * (1 + 0.1 * self.number_waves)
-        enemy.attack_power = enemy.attack_power * (1 + 0.1 * self.number_waves)
+        difficulty = float(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readlines()[1].split()[-1])
+        enemy.heath_start = enemy.hp = enemy.heath_start * (1 + (difficulty * 0.1) * self.number_waves)
+        enemy.attack_power = enemy.attack_power * (1 + (difficulty * 0.1) * self.number_waves)
 
     def lose(self, surface):
         visual.fon_lose.set_alpha(self.transparency_text)

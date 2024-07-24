@@ -8,6 +8,7 @@ from random import choice
 class BossSoul(pygame.sprite.Sprite):
     def __init__(self, person, statue, tiles, *group):
         super().__init__(*group)
+        difficulty = float(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readlines()[1].split()[-1])
 
         self.frames = []
 
@@ -43,7 +44,7 @@ class BossSoul(pygame.sprite.Sprite):
 
         self.flip = False
 
-        self.heath_start = self.hp = CONST.bossSoul_heath
+        self.heath_start = self.hp = CONST.bossSoul_heath * difficulty
 
         self.hit = False
         self.death = False
@@ -126,6 +127,9 @@ class BossSoul(pygame.sprite.Sprite):
             self.death = True
             self.cur_frame = 0
             self.index = 2
+
+            difficulty = float(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readlines()[1].split()[-1])
+            CONST.money += 100 * round(difficulty)
 
         self.hit = False
 

@@ -2,8 +2,12 @@
 SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 TILE_SIZE = TILE_WIDTH, TILE_HEIGHT = 32, 32
 
+SIZE_BUTTON = (SCREEN_WIDTH // 4, 75)
+
 enemy_spawn_x = [-125, SCREEN_WIDTH - 70]
 enemy_spawn_y = [SCREEN_HEIGHT - 300, SCREEN_HEIGHT - 700]
+
+money = int(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readline().split()[-1])  # no constants
 
 knight_heath = 25
 knight_speed = 4
@@ -71,8 +75,12 @@ fire_anim = 75
 quantity_fire = 4
 fire_cooldown = 7000
 
-cooldown_enemy_spawn = 3500
+cooldown_enemy_spawn = 3000
 cooldown_wave = 4000
+
+character_price = {0: 0,
+                   1: 350,
+                   2: 1000}
 
 player_sheet_list = {0: [('player_knight/IDLE.png', 3),
                          ('player_knight/WALK.png', 8),

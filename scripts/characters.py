@@ -109,7 +109,7 @@ class Alexander(players.Player):
         return flag
 
     def first_ability(self):
-        if pygame.time.get_ticks() - self.time_first_ability >= CONST.update_first_ability:
+        if pygame.time.get_ticks() - self.time_first_ability >= CONST.alexander_update_first_ability:
             self.first_icon_ability = load_image('playersPanel/alexander_skill_first.png', transforms=(40, 40))
             if self.first_ability_activate:
                 self.hp = self.heath_start // 4 + self.hp if (
@@ -128,7 +128,7 @@ class Alexander(players.Player):
             self.first_ability_activate = False
 
     def second_ability(self):
-        if pygame.time.get_ticks() - self.time_second_ability >= CONST.update_second_ability:
+        if pygame.time.get_ticks() - self.time_second_ability >= CONST.alexander_update_second_ability:
             self.second_icon_ability = load_image('playersPanel/alexander_skill_second.png', transforms=(40, 40))
             if self.second_ability_activate:
                 Sword((CONST.SCREEN_WIDTH + 100, 550), self.enemy_group, (-20, 0), self.attack_power,
@@ -196,7 +196,7 @@ class Samurai(players.Player):
         return flag
 
     def first_ability(self):
-        if pygame.time.get_ticks() - self.time_first_ability >= CONST.update_first_ability:
+        if pygame.time.get_ticks() - self.time_first_ability >= CONST.samurai_update_first_ability:
             self.first_icon_ability = load_image('playersPanel/samurai_skill_first.png', transforms=(40, 40))
             if self.first_ability_activate:
                 if self.rect.y >= 350:
@@ -213,7 +213,7 @@ class Samurai(players.Player):
             self.first_ability_activate = False
 
     def second_ability(self):
-        if pygame.time.get_ticks() - self.time_second_ability >= CONST.update_second_ability:
+        if pygame.time.get_ticks() - self.time_second_ability >= CONST.samurai_update_second_ability:
             self.second_icon_ability = load_image('playersPanel/samurai_skill_second.png', transforms=(40, 40))
             if self.second_ability_activate:
                 Wolf(self.enemy_group, self.attack_power, self.enemy_group)

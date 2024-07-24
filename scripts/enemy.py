@@ -50,6 +50,8 @@ class Enemy(pygame.sprite.Sprite):
         self.hit = False
         self.death = False
 
+        self.kill_money_add = 1
+
     def cut_sheet(self, list_sheet):
         sheet = load_image(f'enemy/{list_sheet[0][0]}')
         self.rect = pygame.Rect(0, 0, sheet.get_width() // list_sheet[0][1], sheet.get_height())
@@ -94,6 +96,9 @@ class Enemy(pygame.sprite.Sprite):
             self.index = 3
             self.cur_frame = 0
             self.cooldown_anim = 200
+
+            difficulty = float(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readlines()[1].split()[-1])
+            CONST.money += self.kill_money_add * round(difficulty)
 
         elif not self.death:
             self.attack()
@@ -295,6 +300,8 @@ class DeathEnemy(Enemy):
 
         self.sound_attack_enemy = pygame.mixer.Sound('data/music/oglushitelnyiy-zvon-pri-udare-mechom.mp3')
         self.attack_frame_index = 10
+
+        self.kill_money_add = 25
 
     def moving_towards_the_goal(self):
         if self.rect.x < self.purpose.rect.x:

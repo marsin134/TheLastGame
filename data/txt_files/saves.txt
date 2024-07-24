@@ -1,0 +1,6 @@
+money = 0
+difficulty_ratio = 1
+index_characters = 0
+knight = +
+samurai = -
+alexandr = -

@@ -62,8 +62,14 @@ class Player(pygame.sprite.Sprite):
         self.recharge_icon = load_image('playersPanel/recharge.png', transforms=(40, 40))
 
         self.font = pygame.font.Font('data/fonts/Stefan Stoychev - Block Light.ttf', 12)
+        self.font_money = pygame.font.Font('data/fonts/Stefan Stoychev - Block Light.ttf', 25)
+
         self.text_button_first_ability = self.font.render('X', False, (255, 255, 255))
         self.text_button_second_ability = self.font.render('C', False, (255, 255, 255))
+
+        self.fon_money = load_image('button/fon_money.png', transforms=(118, 32))
+        self.money_icon = load_image('playersPanel/money_icon.png', transforms=(16, 16))
+        self.fon_money.set_alpha(200)
 
         self.joystick = None
 
@@ -116,7 +122,7 @@ class Player(pygame.sprite.Sprite):
 
         # if the player goes beyond the boundaries of the world
         if self.rect.x + CONST.TILE_WIDTH * 3 <= 0 or self.rect.x >= CONST.SCREEN_WIDTH - CONST.TILE_WIDTH * 4:
-            self.rect.x -= self.movement_x
+            self.rect.x -= self.movement_x * 1.1
 
         # displays the player
         surface.blit(self.image, self.rect)
@@ -198,9 +204,9 @@ class Player(pygame.sprite.Sprite):
             #     for enemy in self.enemy_group:
             #         enemy.kill()
             #
-            # if event.key == pygame.K_e:
-            #     for enemy in self.enemy_group:
-            #         print(f'attack:{enemy.attack_power} hp:{enemy.heath_start}')
+            if event.key == pygame.K_e:
+                for enemy in self.enemy_group:
+                    print(f'attack:{enemy.attack_power} hp:{enemy.heath_start}')
 
             if event.key == pygame.K_SPACE:
                 if self.power_attraction <= 10 and self.double_jump:
@@ -386,6 +392,13 @@ class Player(pygame.sprite.Sprite):
         surface.blit(self.second_icon_ability,
 
                      (coordinates_list[2] - 36 + coordinates_list[0], coordinates_list[1] * 2.5 + 4))
+
+        money_text = self.font_money.render(str(CONST.money), False, (0, 0, 0))
+
+        surface.blit(self.fon_money, (10, 140))
+        surface.blit(self.money_icon, (15, 148))
+
+        surface.blit(money_text, (80 - len(str(CONST.money)) * 5, 137.5))
 
         text_heath = self.font.render(f'heath_full: {self.heath_start}', False, (0, 0, 0))
         text_attack = self.font.render(f'attack power: {self.attack_power}', False, (0, 0, 0))
