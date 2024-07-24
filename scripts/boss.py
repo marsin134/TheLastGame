@@ -136,7 +136,7 @@ class BossSoul(pygame.sprite.Sprite):
         self.cooldown_stop_moving = CONST.bossSoul_cooldown_stop_moving - 200
 
         if pygame.time.get_ticks() - self.update_time_anim > self.cooldown_anim:
-            if choice(range(0, 4)) % 4 != 0:
+            if choice(range(0, 16)) % 15 != 0:
 
                 Ball((choice([choice(range(0, CONST.SCREEN_WIDTH // 2 - 175)),
                               choice(range(CONST.SCREEN_WIDTH // 2 + 25, CONST.SCREEN_WIDTH))]), -100),
@@ -153,7 +153,7 @@ class BossSoul(pygame.sprite.Sprite):
                 Ball((self.rect.x, self.rect.y + self.rect.h // 4), (0, 5), self.person,
                      self.statue, self.tiles_group, self.enemy_group)
 
-        if choice(range(0, 201)) % 200 == 0:
+        if choice(range(0, 351)) % 350 == 0:
             Portal((self.person.rect.x, self.person.rect.y - 50), self.person, self.enemy_group)
 
         self.moving_towards_the_goal()

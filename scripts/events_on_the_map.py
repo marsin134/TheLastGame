@@ -20,8 +20,7 @@ class Statue(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             CONST.TILE_WIDTH * pos_x, CONST.TILE_HEIGHT * pos_y)
 
-        self.heath_start = self.hp = 25
-
+        self.heath_start = self.hp = CONST.statue_hp
         self.hit = False
 
     def update(self, surface):
@@ -120,8 +119,8 @@ class Fire(pygame.sprite.Sprite):
                     else self.person.heath_start
 
             elif self.variations == 'purple':
-                # difficulty = float(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readlines()[1].split()[-1])
-                self.person.attack_power = round(self.person.attack_power * (1 + 0.05), 4)
+                difficulty = float(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readlines()[1].split()[-1])
+                self.person.attack_power = round(self.person.attack_power * (1 + (0.04 + difficulty / 100)), 4)
 
             elif self.variations == 'white':
                 self.person.heath_start = round(self.person.heath_start * 1.05, 4)
@@ -314,7 +313,7 @@ class Wave:
             fon_game_music_waterflame.stop()
             self.quantity_firs = CONST.quantity_fire * 2
 
-        self.statue.heath_start = self.statue.hp = self.statue.heath_start * (1 + 0.1 * self.number_waves)
+        self.statue.heath_start = self.statue.hp = CONST.statue_hp * self.number_waves * 0.5
         self.player.hp = self.player.heath_start
 
     def creating_fire(self):

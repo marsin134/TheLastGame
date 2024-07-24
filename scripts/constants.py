@@ -9,6 +9,8 @@ enemy_spawn_y = [SCREEN_HEIGHT - 300, SCREEN_HEIGHT - 700]
 
 money = int(open('data/txt_files/saves.txt', 'r', encoding='utf-8').readline().split()[-1])  # no constants
 
+statue_hp = 30
+
 knight_heath = 25
 knight_speed = 4
 knight_power_jump = 17
@@ -59,7 +61,7 @@ mushroom_range_player = 1000
 
 death_enemy_heath = 75
 death_enemy_speed = 3
-death_enemy_attack_power = 25
+death_enemy_attack_power = 20
 death_enemy_cooldown_anim = 100
 death_enemy_range_player = 250
 
@@ -69,7 +71,7 @@ bossSoul_cooldown_stop_moving = 1500
 
 portal_attack_power = 3
 
-ball_attack_power = 7
+ball_attack_power = 10
 
 fire_anim = 75
 quantity_fire = 4
@@ -79,8 +81,8 @@ cooldown_enemy_spawn = 3000
 cooldown_wave = 4000
 
 character_price = {0: 0,
-                   1: 350,
-                   2: 1000}
+                   1: 750,
+                   2: 2500}
 
 player_sheet_list = {0: [('player_knight/IDLE.png', 3),
                          ('player_knight/WALK.png', 8),

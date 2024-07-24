@@ -112,6 +112,10 @@ def shop(surface):
                     if is_it_possible_to_use_a_character(2):
                         music_click.play()
                         overwrite_character_in_text_files(2)
+            if event.type == pygame.KEYUP and event.key == pygame.K_a and pygame.key.get_mods() & pygame.KMOD_CAPS != 0 and int(
+                    open('data/txt_files/saves.txt', 'r', encoding='utf-8').readlines()[2].split()[-1]) == 2:
+                mem_sound.stop()
+                mem_sound.play()
 
         surface.blit(fon_shop, (0, 0))
 
@@ -330,3 +334,4 @@ for one_button in button_in_shop:
 
 purchase_sound = pygame.mixer.Sound('data/music/buyTrue.mp3')
 purchase_cancelled_sound = pygame.mixer.Sound('data/music/buyFalse.mp3')
+mem_sound = pygame.mixer.Sound('data/music/the sound for Easter eggs.mp3')

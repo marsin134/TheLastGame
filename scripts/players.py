@@ -71,7 +71,12 @@ class Player(pygame.sprite.Sprite):
         self.money_icon = load_image('playersPanel/money_icon.png', transforms=(16, 16))
         self.fon_money.set_alpha(200)
 
-        self.joystick = None
+        joystick = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
+        if joystick:
+            self.joystick = joystick
+            self.text_button_second_ability = self.font.render('Y', False, (255, 255, 255))
+        else:
+            self.joystick = None
 
     def update(self, surface):
         # If he died
@@ -200,13 +205,12 @@ class Player(pygame.sprite.Sprite):
             if event.key == pygame.K_c:
                 self.second_ability_activate = True
 
-            # if event.key == pygame.K_l:
+            # if event.key == pygame.K_k:
             #     for enemy in self.enemy_group:
             #         enemy.kill()
             #
-            if event.key == pygame.K_e:
-                for enemy in self.enemy_group:
-                    print(f'attack:{enemy.attack_power} hp:{enemy.heath_start}')
+            # if event.key == pygame.K_e:
+            #     self.hp = self.heath_start
 
             if event.key == pygame.K_SPACE:
                 if self.power_attraction <= 10 and self.double_jump:
@@ -400,11 +404,11 @@ class Player(pygame.sprite.Sprite):
 
         surface.blit(money_text, (80 - len(str(CONST.money)) * 5, 137.5))
 
-        text_heath = self.font.render(f'heath_full: {self.heath_start}', False, (0, 0, 0))
-        text_attack = self.font.render(f'attack power: {self.attack_power}', False, (0, 0, 0))
-
-        surface.blit(text_heath, (0, 150))
-        surface.blit(text_attack, (0, 165))
+        # text_heath = self.font.render(f'heath_full: {self.heath_start}', False, (0, 0, 0))
+        # text_attack = self.font.render(f'attack power: {self.attack_power}', False, (0, 0, 0))
+        #
+        # surface.blit(text_heath, (0, 150))
+        # surface.blit(text_attack, (0, 165))
 
 
 def is_collided_with(sprite_person, sprite_group):

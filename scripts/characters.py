@@ -109,7 +109,7 @@ class Alexander(players.Player):
         return flag
 
     def first_ability(self):
-        if pygame.time.get_ticks() - self.time_first_ability >= CONST.alexander_update_first_ability:
+        if pygame.time.get_ticks() - self.time_first_ability >= CONST.alexander_update_first_ability and not self.death:
             self.first_icon_ability = load_image('playersPanel/alexander_skill_first.png', transforms=(40, 40))
             if self.first_ability_activate:
                 self.hp = self.heath_start // 4 + self.hp if (
