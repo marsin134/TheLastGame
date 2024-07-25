@@ -259,17 +259,14 @@ class Wave:
 
     def random_choose_enemy(self):
         # Chooses a random enemy
-        enemy_index = choice(range(len(self.number_enemyies_in_waves[self.number_waves])))
-
-        # If the enemies of this type are dead, select the type that has not died yet
-        while self.number_enemyies_in_waves[self.number_waves][enemy_index] == 0:
-            enemy_index = choice(range(len(self.number_enemyies_in_waves[self.number_waves])))
+        enemy_index = choice(list(filter(lambda x: int(x) != 0, self.number_enemyies_in_waves[self.number_waves])))
 
         # subtracting a given type of creature from the array
-        self.number_enemyies_in_waves[self.number_waves][enemy_index] -= 1
+        index = self.number_enemyies_in_waves[self.number_waves].index(enemy_index)
+        self.number_enemyies_in_waves[self.number_waves][index] -= 1
 
         # Creating an enemy
-        enemy = self.dict_enemy[enemy_index](
+        enemy = self.dict_enemy[index](
             (choice(CONST.enemy_spawn_x), choice(CONST.enemy_spawn_y)),
             self.tiles_group, self.player, self.statue, self.enemy_group)
 

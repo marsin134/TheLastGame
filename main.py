@@ -1,5 +1,6 @@
 import pygame
 from scripts import visual, characters, events_on_the_map, constants, menu
+import sys
 
 SIZE = WIDTH, HEIGHT = constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT
 
@@ -50,7 +51,7 @@ def game(screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 menu.overwrite_money_in_text_files()
-                pygame.quit()
+                running = False
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 pause = not pause
@@ -88,6 +89,7 @@ def game(screen):
         pygame.display.flip()
 
         clock.tick(FPS)
+    sys.exit()
 
 
 run_game = menu.menu(screen)
